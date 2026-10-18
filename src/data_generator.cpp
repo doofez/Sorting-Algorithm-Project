@@ -67,5 +67,12 @@ std::vector<TrackedElement> generate_search_queries(const std::vector<TrackedEle
             queries[i] = TrackedElement(miss_dist(rng));
         }
     }
+
+    if (num_queries >= 3 && !data.empty()) {
+        queries[0] = data[0]; // Best case for Linear & Exponential Search (index 0)
+        queries[1] = data[(data.size() - 1) / 2]; // Best case for Binary Search (exact middle)
+        queries[2] = TrackedElement(data.back().value + 999999); // Guaranteed Worst Case (not found / past end)
+    }
+
     return queries;
 }

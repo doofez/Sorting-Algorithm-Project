@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <new>
+#include <limits>
 
 // Global memory tracking variables
 static size_t current_heap_memory = 0;
@@ -91,22 +92,46 @@ SearchBenchmarkResult run_search_benchmark(
     int (*search_function)(const std::vector<TrackedElement>&, const TrackedElement&)
 ) {
     double total_time_ms = 0.0;
+    double best_time_ms = std::numeric_limits<double>::max();
     double worst_time_ms = 0.0;
-    
+
+    unsigned long long total_comparisons = 0;
+    unsigned long long best_comparisons = std::numeric_limits<unsigned long long>::max();
+    unsigned long long worst_comparisons = 0;
+
     peak_heap_memory = current_heap_memory;
     size_t mem_before = current_heap_memory;
 
     for (const auto& query : queries) {
+        // Reset comparison counter for this single query
+        TrackedElement::comparison_count = 0;
+
         auto start_time = std::chrono::high_resolution_clock::now();
         volatile int idx = search_function(data, query);
         (void)idx;
         auto end_time = std::chrono::high_resolution_clock::now();
 
+        // 1. Track Time (Best, Total, Worst)
         std::chrono::duration<double, std::milli> elapsed = end_time - start_time;
         double current_ms = elapsed.count();
         total_time_ms += current_ms;
+
+        if (current_ms < best_time_ms) {
+            best_time_ms = current_ms;
+        }
         if (current_ms > worst_time_ms) {
             worst_time_ms = current_ms;
+        }
+
+        // 2. Track Comparisons (Best, Total, Worst)
+        unsigned long long current_comps = TrackedElement::comparison_count;
+        total_comparisons += current_comps;
+
+        if (current_comps < best_comparisons) {
+            best_comparisons = current_comps;
+        }
+        if (current_comps > worst_comparisons) {
+            worst_comparisons = current_comps;
         }
     }
 
@@ -115,9 +140,24 @@ SearchBenchmarkResult run_search_benchmark(
 
     SearchBenchmarkResult result;
     result.algorithm_name = algorithm_name;
-    result.average_search_time_ms = queries.empty() ? 0.0 : (total_time_ms / queries.size());
-    result.worst_case_time_ms = worst_time_ms;
-    result.memory_usage_kb = mem_used_kb;
 
+    if (queries.empty()) {
+        result.best_case_time_ms = 0.0;
+        result.average_search_time_ms = 0.0;
+        result.worst_case_time_ms = 0.0;
+        result.best_case_comparisons = 0;
+        result.average_comparisons = 0.0;
+        result.worst_case_comparisons = 0;
+    } else {
+        result.best_case_time_ms = best_time_ms;
+        result.average_search_time_ms = total_time_ms / queries.size();
+        result.worst_case_time_ms = worst_time_ms;
+
+        result.best_case_comparisons = best_comparisons;
+        result.average_comparisons = static_cast<double>(total_comparisons) / queries.size();
+        result.worst_case_comparisons = worst_comparisons;
+    }
+
+    result.memory_usage_kb = mem_used_kb;
     return result;
 }

@@ -1,6 +1,7 @@
 #include "utils.hpp"
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 
 void export_sorting_to_csv(const std::string& filename, const std::vector<BenchmarkResult>& results) {
     std::ofstream file(filename);
@@ -27,11 +28,18 @@ void export_searching_to_csv(const std::string& filename, const std::vector<Sear
         return;
     }
 
-    file << "Algorithm,Average Search Time (ms),Worst Case Time (ms),Memory Usage (KB)\n";
+    file << "Algorithm,Best Time (ms),Average Time (ms),Worst Time (ms),"
+         << "Best Comparisons,Average Comparisons,Worst Comparisons,Memory Usage (KB)\n";
+
+    file << std::fixed << std::setprecision(6);
     for (const auto& r : results) {
         file << r.algorithm_name << ","
+             << r.best_case_time_ms << ","
              << r.average_search_time_ms << ","
              << r.worst_case_time_ms << ","
+             << r.best_case_comparisons << ","
+             << std::setprecision(2) << r.average_comparisons << std::setprecision(6) << ","
+             << r.worst_case_comparisons << ","
              << r.memory_usage_kb << "\n";
     }
 }

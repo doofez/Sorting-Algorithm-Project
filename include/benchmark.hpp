@@ -17,8 +17,14 @@ struct BenchmarkResult {
 struct SearchBenchmarkResult {
     std::string algorithm_name;
 
+    double best_case_time_ms;
     double average_search_time_ms;
     double worst_case_time_ms;
+
+    unsigned long long best_case_comparisons;
+    double average_comparisons;
+    unsigned long long worst_case_comparisons;
+
     size_t memory_usage_kb;
 };
 
