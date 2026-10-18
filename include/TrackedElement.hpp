@@ -42,4 +42,16 @@ struct TrackedElement {
         comparison_count++;
         return this->value != other.value;
     }
+
+    //other overloaded operators
+
+    TrackedElement& operator+=(const TrackedElement& other){
+        this->value += other.value;
+        return *this;
+    }
+    
+    TrackedElement& operator+=(int amount){
+        this->value += amount;
+        return *this;
+    }
 };

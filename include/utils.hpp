@@ -2,8 +2,8 @@
 
 #include <string>
 #include <vector>
-#include "benchmark.h"
-#include "TrackedElement.h"
+#include "benchmark.hpp"
+#include "TrackedElement.hpp"
 
 void export_sorting_to_csv(const std::string& filename, const std::vector<BenchmarkResult>& results);
 
