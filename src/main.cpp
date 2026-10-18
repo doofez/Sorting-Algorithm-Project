@@ -16,6 +16,8 @@ int main() {
         sizes.push_back(s);
     }
 
+    sizes.push_back(100000000);
+
     // Dataset generator functions from data_generator.hpp
     std::vector<std::pair<std::string, std::vector<TrackedElement> (*)(size_t)>> generators = {
         {"Random", generate_random},
