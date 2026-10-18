@@ -140,3 +140,72 @@ void clusterSortComb(std::vector<TrackedElement>& data) {
 void clusterSortShell(std::vector<TrackedElement>& data) {
     clusterSort(data, true);
 }
+
+static void countingSort(std::vector<TrackedElement>& A, std::vector<TrackedElement>& B, std::vector<int>& C, const std::vector<int>& K, bool copy_B_to_A) {
+    size_t n = A.size();
+    
+    //tracking frequency of each value k in K
+    for(size_t i = 0; i < n; i++) {
+        int k = K[i];
+        C[k] += 1;
+    }
+
+    //update C[k] to track the cumilative frequency of all key values
+    for(size_t k = 1; k < C.size(); k++) {
+        C[k] += C[k - 1];
+    }
+
+    //iterate backwards
+    for(int i = static_cast<int>(n) - 1; i >= 0; i--) {
+        int k = K[i];
+        B[C[k] - 1] = A[i];
+        C[k] -= 1;
+    }
+
+    if(copy_B_to_A) {
+        for(size_t i = 0; i < n; i++) {
+            A[i] = B[i];
+        }
+    }
+}
+
+void qrSort(std::vector<TrackedElement>& data) {
+    size_t n = data.size();
+    if (n <= 1) return;
+
+    auto [min_it, max_it] = std::minmax_element(data.begin(), data.end());
+    int min_val = min_it->value;
+    int max_val = max_it->value;
+
+    if (min_val == max_val) return;
+
+    long long m = static_cast<long long>(max_val) - min_val + 1;
+
+    int d = static_cast<int>(std::sqrt(m));
+    if (d < 1) d = 1;
+
+    int max_quot = (max_val - min_val) / d;
+
+    std::vector<TrackedElement> B(n);
+
+    //counting array and remainder keys array
+    std::vector<int> Cr(d, 0);
+    std::vector<int> R(n);
+    for(size_t i = 0; i < n; i++) {
+        R[i] = (data[i].value - min_val) % d;
+    }
+
+    if(max_quot == 0) {
+        countingSort(data, B, Cr, R, true);
+    } else {
+        countingSort(data, B, Cr, R, false);
+
+        std::vector<int> Cq(max_quot + 1, 0);
+        std::vector<int> Q(n);
+        for(size_t i = 0; i < n; i++) {
+            Q[i] = (B[i].value - min_val) / d;
+        }
+
+        countingSort(B, data, Cq, Q, false);
+    }
+}
