@@ -41,8 +41,9 @@ std::vector<TrackedElement> generate_reverse_sorted(size_t size) {
 std::vector<TrackedElement> generate_duplicate_values(size_t size) {
     std::vector<TrackedElement> data(size);
     std::mt19937 rng(42);
-    // Restrict range to [0, 99] to guarantee heavy duplicates
-    std::uniform_int_distribution<int> dist(0, 99);
+    // 1% unique values relative to size (e.g., [0, 10000] at N = 1,000,000)
+    int max_dup_val = std::max(100, static_cast<int>(size / 100));
+    std::uniform_int_distribution<int> dist(0, max_dup_val);
 
     for (size_t i = 0; i < size; i++) {
         data[i] = TrackedElement(dist(rng));
