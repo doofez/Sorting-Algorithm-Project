@@ -7,7 +7,7 @@ void twinArraySort(std::vector<TrackedElement>& data){
     TrackedElement max_element = *std::max_element(data.begin(), data.end());
     int max_value = max_element.value;
     std::vector<TrackedElement> value_store(max_value + 1);
-    std::vector<TrackedElement> count_store(max_value + 1);
+    std::vector<int> count_store(max_value + 1);
 
     bool has_duplicates = false;
 
